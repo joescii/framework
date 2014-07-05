@@ -969,12 +969,17 @@ object JsonDeltaFuncs { obj =>
   import JsCmds._
   import JE._
 
-  def dfn(val1: JValue, val2: JValue): JsVar => JsCmd = { ref => (val1, val2) match {
-    case (x, y) if x == y => JsCmds.Noop
+  def dfn(val1: JValue, val2: JValue): JsVar => JsCmd = (val1, val2) match {
+    case (x, y) if x == y => ref => JsCmds.Noop
 //    case (JObject(xs), JObject(ys)) => diffFields(xs, ys)
-//    case (JArray(xs), JArray(ys)) => diffVals(xs, ys)
-    case (x, y) => SetExp(ref, y)
-  } }
+    case (JArray(xs), JArray(ys)) => dfnArrays(xs, ys)
+    case (x, y) => ref => SetExp(ref, y)
+  }
+
+  private def dfnArrays(xs:List[JValue], ys:List[JValue]): JsVar => JsCmd = { ref =>
+    val append = ys.drop(xs.length)
+    append.zipWithIndex.map { case (v, i) => SetExp(JsRaw(ref.varName+"["+(i+xs.length).toString+"]"), v):JsCmd }.reduceLeftOption(_ & _).getOrElse(JsCmds.Noop)
+  }
 
   implicit class ToJsonDeltaFunc(j:JValue) {
     def dfn(other:JValue): JsVar => JsCmd = obj.dfn(j, other)
