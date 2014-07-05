@@ -970,11 +970,14 @@ object DiffTransformers {
   import JE._
 
   implicit class DiffJsCmdsImpl(d:Diff){
-    def transformer:String => JsCmd = { refName =>
-      val Diff(changed, added, deleted) = d
-      if(JNothing != changed) SetExp(JsVar(refName), changed)
-      else if(JNothing != added) SetExp(JsVar(refName), added)
-      else JsCmds.Noop
+    def transformer:JsVar => JsCmd = { refName =>
+      d match {
+        case Diff(JNothing, JNothing, JNothing) => JsCmds.Noop
+        case Diff(_, JArray(xs), _) => Call(refName.varName+".push", xs.head)
+        case Diff(changed, JNothing, _) => SetExp(refName, changed)
+        case Diff(JNothing, added, _) => SetExp(refName, added)
+        case _ => JsCmds.Noop
+      }
     }
   }
 }
