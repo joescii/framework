@@ -964,7 +964,7 @@ object JsRules {
   @volatile var fadeTime: Helpers.TimeSpan = 1.second
 }
 
-object DiffJsCmds {
+object DiffTransformers {
   import json._
   import JsCmds._
   import JE._

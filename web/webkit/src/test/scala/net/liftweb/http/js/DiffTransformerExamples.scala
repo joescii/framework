@@ -4,10 +4,10 @@ package js
 
 import json._
 import JE._
-import DiffJsCmds._
+import DiffTransformers._
 import org.specs2.mutable.Specification
 
-object DiffCmdsExamples extends Specification{
+object DiffTransformerExamples extends Specification{
 
   "Different int values example" in {
     val d:Diff  = JInt(1) diff JInt(2)
