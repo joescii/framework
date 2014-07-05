@@ -964,3 +964,16 @@ object JsRules {
   @volatile var fadeTime: Helpers.TimeSpan = 1.second
 }
 
+object DiffJsCmds {
+  import json._
+  import JsCmds._
+  import JE._
+
+  implicit class DiffJsCmdsImpl(d:Diff){
+    def transformer:String => JsCmd = { refName =>
+      val Diff(changed, added, deleted) = d
+      if(JNothing != changed) SetExp(JsVar(refName), changed)
+      else SetExp(JsVar(refName), added)
+    }
+  }
+}
