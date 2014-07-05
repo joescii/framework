@@ -38,8 +38,8 @@ object JsonDeltaFuncExamples extends Specification{
       JArray(JBool(false) :: JInt(42) :: JString("yo") :: JInt(10) :: Nil )
     val jsf = (
       JsRaw("x[2] = \"yo\"").cmd &
-      JsRaw("x[3] = 10")
-    .cmd)
+      JsRaw("x[3] = 10").cmd
+    )
     dfn(JsVar("x")).toJsCmd mustEqual(jsf.toJsCmd)
   }
 
@@ -50,13 +50,19 @@ object JsonDeltaFuncExamples extends Specification{
     dfn(JsVar("x")).toJsCmd mustEqual(jsf.toJsCmd)
   }
 
-//  "Prepend 2 values to array" in {
-//    val dfn = JArray(JBool(false) :: JInt(42) :: Nil) dfn
-//      JArray(JString("yo") :: JInt(10) :: JBool(false) :: JInt(42) :: Nil )
-//    println(dfn)
-//    val jsf = (JsRaw("x.push(\"yo\")").cmd & JsRaw("x.push(10)").cmd)
-//    dfn(JsVar("x")).toJsCmd mustEqual(jsf.toJsCmd)
-//  }
+  // Not optimal, but whatever...
+  "Prepend 2 values to array" in {
+    val dfn = JArray(JBool(false) :: JInt(42) :: Nil) dfn
+      JArray(JString("yo") :: JInt(10) :: JBool(false) :: JInt(42) :: Nil )
+    println(dfn)
+    val jsf = (
+      JsRaw("x[0] = \"yo\"").cmd &
+      JsRaw("x[1] = 10").cmd &
+      JsRaw("x[2] = false").cmd &
+      JsRaw("x[3] = 42").cmd
+    )
+    dfn(JsVar("x")).toJsCmd mustEqual(jsf.toJsCmd)
+  }
 
 //  "Remove first 2 values from array" in {
 //    val dfn =   JArray(JBool(false) :: JInt(42) :: JString("yo") :: JInt(10) :: Nil ) dfn
