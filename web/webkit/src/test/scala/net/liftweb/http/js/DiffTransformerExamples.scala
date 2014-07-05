@@ -26,17 +26,36 @@ object DiffTransformerExamples extends Specification{
     d.transformer(JsVar("x")).toJsCmd mustEqual(f.toJsCmd)
   }
 
-  "Append value to end of array" in {
+  "Append value to array" in {
     val d:Diff  = JArray(JBool(false) :: JInt(42) :: JString("yo") :: Nil) diff
       JArray(JBool(false) :: JInt(42) :: JString("yo") :: JInt(10) :: Nil )
     val f:JsCmd = JsRaw("x.push(10)").cmd
     d.transformer(JsVar("x")).toJsCmd mustEqual(f.toJsCmd)
   }
 
-  "Append 2 values to end of array" in {
+  "Append 2 values to array" in {
     val d:Diff  = JArray(JBool(false) :: JInt(42) :: Nil) diff
       JArray(JBool(false) :: JInt(42) :: JString("yo") :: JInt(10) :: Nil )
+    val f:JsCmd = (
+      JsRaw("x[x.indexOf(false)]=void 0").cmd &
+      JsRaw("x.push(10)")
+    .cmd)
+    d.transformer(JsVar("x")).toJsCmd mustEqual(f.toJsCmd)
+  }
+
+  "Prepend 2 values to array" in {
+    val d:Diff  = JArray(JBool(false) :: JInt(42) :: Nil) diff
+      JArray(JString("yo") :: JInt(10) :: JBool(false) :: JInt(42) :: Nil )
+    println(d)
     val f:JsCmd = (JsRaw("x.push(\"yo\")").cmd & JsRaw("x.push(10)").cmd)
     d.transformer(JsVar("x")).toJsCmd mustEqual(f.toJsCmd)
   }
+
+//  "Remove first 2 values from array" in {
+//    val d:Diff  =   JArray(JBool(false) :: JInt(42) :: JString("yo") :: JInt(10) :: Nil ) diff
+//      JArray(JString("yo") :: JInt(10) :: Nil)
+//    println(d)
+//    val f:JsCmd = (JsRaw("x.push(false)").cmd & JsRaw("x.push(42)").cmd)
+//    d.transformer(JsVar("x")).toJsCmd mustEqual(f.toJsCmd)
+//  }
 }
