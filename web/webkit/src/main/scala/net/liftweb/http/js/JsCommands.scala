@@ -973,7 +973,8 @@ object DiffTransformers {
     def transformer:String => JsCmd = { refName =>
       val Diff(changed, added, deleted) = d
       if(JNothing != changed) SetExp(JsVar(refName), changed)
-      else SetExp(JsVar(refName), added)
+      else if(JNothing != added) SetExp(JsVar(refName), added)
+      else JsCmds.Noop
     }
   }
 }

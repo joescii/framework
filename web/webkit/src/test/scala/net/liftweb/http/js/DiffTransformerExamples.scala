@@ -8,6 +8,11 @@ import DiffTransformers._
 import org.specs2.mutable.Specification
 
 object DiffTransformerExamples extends Specification{
+  "Same values" in {
+    val d:Diff  = JString("same") diff JString("same")
+    val f:JsCmd = JsCmds.Noop
+    d.transformer("x") mustEqual(f)
+  }
 
   "Different int values example" in {
     val d:Diff  = JInt(1) diff JInt(2)
@@ -18,7 +23,6 @@ object DiffTransformerExamples extends Specification{
   "Different value types example" in {
     val d:Diff  = JBool(true) diff JString("stuff")
     val f:JsCmd = JsRaw("x = \"stuff\"").cmd
-    println(d)
     d.transformer("x").toJsCmd mustEqual(f.toJsCmd)
   }
 }
