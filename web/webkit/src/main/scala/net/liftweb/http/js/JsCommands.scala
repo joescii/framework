@@ -964,20 +964,19 @@ object JsRules {
   @volatile var fadeTime: Helpers.TimeSpan = 1.second
 }
 
-object DiffTransformers {
+object JsonDeltaFuncs { obj =>
   import json._
   import JsCmds._
   import JE._
 
-  implicit class DiffJsCmdsImpl(d:Diff){
-    def transformer:JsVar => JsCmd = { refName =>
-      d match {
-        case Diff(JNothing, JNothing, JNothing) => JsCmds.Noop
-        case Diff(_, JArray(xs), _) => xs.map(Call(refName.varName+".push", _).cmd).reduce(_ & _)
-        case Diff(changed, JNothing, _) => SetExp(refName, changed)
-        case Diff(JNothing, added, _) => SetExp(refName, added)
-        case _ => JsCmds.Noop
-      }
-    }
+  def dfn(val1: JValue, val2: JValue): JsVar => JsCmd = { ref => (val1, val2) match {
+    case (x, y) if x == y => JsCmds.Noop
+//    case (JObject(xs), JObject(ys)) => diffFields(xs, ys)
+//    case (JArray(xs), JArray(ys)) => diffVals(xs, ys)
+    case (x, y) => SetExp(ref, y)
+  } }
+
+  implicit class ToJsonDeltaFunc(j:JValue) {
+    def dfn(other:JValue): JsVar => JsCmd = obj.dfn(j, other)
   }
 }
