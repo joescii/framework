@@ -32,4 +32,11 @@ object DiffTransformerExamples extends Specification{
     val f:JsCmd = JsRaw("x.push(10)").cmd
     d.transformer(JsVar("x")).toJsCmd mustEqual(f.toJsCmd)
   }
+
+  "Append 2 values to end of array" in {
+    val d:Diff  = JArray(JBool(false) :: JInt(42) :: Nil) diff
+      JArray(JBool(false) :: JInt(42) :: JString("yo") :: JInt(10) :: Nil )
+    val f:JsCmd = (JsRaw("x.push(\"yo\")").cmd & JsRaw("x.push(10)").cmd)
+    d.transformer(JsVar("x")).toJsCmd mustEqual(f.toJsCmd)
+  }
 }

@@ -973,7 +973,7 @@ object DiffTransformers {
     def transformer:JsVar => JsCmd = { refName =>
       d match {
         case Diff(JNothing, JNothing, JNothing) => JsCmds.Noop
-        case Diff(_, JArray(xs), _) => Call(refName.varName+".push", xs.head)
+        case Diff(_, JArray(xs), _) => xs.map(Call(refName.varName+".push", _).cmd).reduce(_ & _)
         case Diff(changed, JNothing, _) => SetExp(refName, changed)
         case Diff(JNothing, added, _) => SetExp(refName, added)
         case _ => JsCmds.Noop
