@@ -43,6 +43,13 @@ object JsonDeltaFuncExamples extends Specification{
     dfn(JsVar("x")).toJsCmd mustEqual(jsf.toJsCmd)
   }
 
+  "Change value in array" in {
+    val dfn = JArray(JBool(false) :: JInt(42) :: JString("yo") :: JInt(10) :: Nil) dfn
+      JArray(JBool(false) :: JInt(42) :: JString("dawg") :: JInt(10) :: Nil )
+    val jsf = JsRaw("x[2] = \"dawg\"").cmd
+    dfn(JsVar("x")).toJsCmd mustEqual(jsf.toJsCmd)
+  }
+
 //  "Prepend 2 values to array" in {
 //    val dfn = JArray(JBool(false) :: JInt(42) :: Nil) dfn
 //      JArray(JString("yo") :: JInt(10) :: JBool(false) :: JInt(42) :: Nil )
