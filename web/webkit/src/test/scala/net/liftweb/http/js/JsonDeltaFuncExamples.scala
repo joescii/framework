@@ -65,13 +65,30 @@ object JsonDeltaFuncExamples extends Specification{
   }
 
   "Remove first 2 values from array" in {
-    val dfn =   JArray(JBool(false) :: JInt(42) :: JString("yo") :: JInt(10) :: Nil ) dfn
+    val dfn = JArray(JBool(false) :: JInt(42) :: JString("yo") :: JInt(10) :: Nil ) dfn
       JArray(JString("yo") :: JInt(10) :: Nil)
     val jsf = (
       JsRaw("x[0] = \"yo\"").cmd &
       JsRaw("x[1] = 10").cmd &
       JsFor(JsRaw("i=0"),JsLt(JsVar("i"),JInt(2)),JsRaw("i++"),Call("x.pop"))
     )
+    dfn(JsVar("x")).toJsCmd mustEqual(jsf.toJsCmd)
+  }
+
+  "Change an existing field in an obj" in {
+    val x = parse("""
+    {
+      "lang": "scala",
+      "year": 2006,
+    }""")
+    val y = parse("""
+    {
+      "lang": "haskell",
+      "year": 2006,
+    }""")
+    val dfn = x dfn y
+    val jsf = JsRaw("x[\"lang\"] = \"haskell\"").cmd
+
     dfn(JsVar("x")).toJsCmd mustEqual(jsf.toJsCmd)
   }
 }
