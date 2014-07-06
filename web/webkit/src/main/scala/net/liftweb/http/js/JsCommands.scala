@@ -967,6 +967,8 @@ object JsRules {
 /**
  * Contains utility for generating a JsCmd that will convert one JSON object into another.  This utility is meant
  * to be optimal for minor changes to a model object.  Large model changes will not benefit from this utility.
+ * In typical cases, we can expect small incremental changes to a model on the server, which this utility will pluck
+ * out that diff and send the minimal information to the client to update.
  */
 object JsonDeltaFuncs { obj =>
   import json._
