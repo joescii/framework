@@ -1009,10 +1009,10 @@ object JsonDeltaFuncs { obj =>
     val ym = toMap(ys)
 
     val additions = for {
-      (k, v) <- ym
-      xv <- xm.get(k) if v != xv
+      (k, yv) <- ym
+      xv <- xm.get(k)
     } yield {
-      SetExp(JsRaw(ref.varName+"[\""+k+"\"]"), v):JsCmd
+      dfn(xv, yv)(JsVar(ref.varName+"[\""+k+"\"]"))
     }
 
     additions.reduceLeftOption(_ & _).getOrElse(JsCmds.Noop)

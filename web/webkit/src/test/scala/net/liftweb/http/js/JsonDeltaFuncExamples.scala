@@ -89,6 +89,6 @@ object JsonDeltaFuncExamples extends Specification{
     val dfn = x dfn y
     val jsf = JsRaw("x[\"lang\"] = \"haskell\"").cmd
 
-    dfn(JsVar("x")).toJsCmd mustEqual(jsf.toJsCmd)
+    dfn(JsVar("x")).toJsCmd.trim mustEqual(jsf.toJsCmd.trim)
   }
 }
