@@ -990,9 +990,9 @@ object JsonDeltaFuncs { obj =>
     val xsp = xs.padTo(len, JNull)
 
     val deltas = for {
-      ((x, y), i) <- xsp.zip(ys).zipWithIndex if x != y
+      ((x, y), i) <- xsp.zip(ys).zipWithIndex
     } yield {
-      SetExp(JsRaw(ref.varName+"["+i+"]"), y):JsCmd
+      dfn(x, y)(JsVar(ref.varName+"["+i+"]"))
     }
 
     val pops = if(xs.length > ys.length)

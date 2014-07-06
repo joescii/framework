@@ -18,20 +18,20 @@ object JsonDeltaFuncExamples extends Specification{
   "Different int values example" in {
     val dfn = JInt(1) dfn JInt(2)
     val jsf = JsRaw("x = 2").cmd
-    dfn(JsVar("x")).toJsCmd mustEqual(jsf.toJsCmd)
+    dfn(JsVar("x")).toJsCmd.trim mustEqual(jsf.toJsCmd.trim)
   }
 
   "Different value types example" in {
     val dfn = JBool(true) dfn JString("stuff")
     val jsf = JsRaw("x = \"stuff\"").cmd
-    dfn(JsVar("x")).toJsCmd mustEqual(jsf.toJsCmd)
+    dfn(JsVar("x")).toJsCmd.trim mustEqual(jsf.toJsCmd.trim)
   }
 
   "Append value to array" in {
     val dfn = JArray(JBool(false) :: JInt(42) :: JString("yo") :: Nil) dfn
       JArray(JBool(false) :: JInt(42) :: JString("yo") :: JInt(10) :: Nil )
     val jsf = JsRaw("x[3] = 10").cmd
-    dfn(JsVar("x")).toJsCmd mustEqual(jsf.toJsCmd)
+    dfn(JsVar("x")).toJsCmd.trim mustEqual(jsf.toJsCmd.trim)
   }
 
   "Append 2 values to array" in {
@@ -41,14 +41,14 @@ object JsonDeltaFuncExamples extends Specification{
       JsRaw("x[2] = \"yo\"").cmd &
       JsRaw("x[3] = 10").cmd
     )
-    dfn(JsVar("x")).toJsCmd mustEqual(jsf.toJsCmd)
+    dfn(JsVar("x")).toJsCmd.trim mustEqual(jsf.toJsCmd.trim)
   }
 
   "Change value in array" in {
     val dfn = JArray(JBool(false) :: JInt(42) :: JString("yo") :: JInt(10) :: Nil) dfn
       JArray(JBool(false) :: JInt(42) :: JString("dawg") :: JInt(10) :: Nil )
     val jsf = JsRaw("x[2] = \"dawg\"").cmd
-    dfn(JsVar("x")).toJsCmd mustEqual(jsf.toJsCmd)
+    dfn(JsVar("x")).toJsCmd.trim mustEqual(jsf.toJsCmd.trim)
   }
 
   // Not optimal, but whatever...
@@ -61,7 +61,7 @@ object JsonDeltaFuncExamples extends Specification{
       JsRaw("x[2] = false").cmd &
       JsRaw("x[3] = 42").cmd
     )
-    dfn(JsVar("x")).toJsCmd mustEqual(jsf.toJsCmd)
+    dfn(JsVar("x")).toJsCmd.trim mustEqual(jsf.toJsCmd.trim)
   }
 
   "Remove first 2 values from array" in {
@@ -72,7 +72,7 @@ object JsonDeltaFuncExamples extends Specification{
       JsRaw("x[1] = 10").cmd &
       JsFor(JsRaw("i=0"),JsLt(JsVar("i"),JInt(2)),JsRaw("i++"),Call("x.pop"))
     )
-    dfn(JsVar("x")).toJsCmd mustEqual(jsf.toJsCmd)
+    dfn(JsVar("x")).toJsCmd.trim mustEqual(jsf.toJsCmd.trim)
   }
 
   "Change an existing field in an obj" in {
