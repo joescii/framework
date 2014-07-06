@@ -110,4 +110,19 @@ object JsonDeltaFuncExamples extends Specification{
     dfn(JsVar("x")).toJsCmd.trim mustEqual(jsf.toJsCmd.trim)
   }
 
+  "Remove an existing field in an obj" in {
+    val x = parse("""
+    {
+      "lang": "scala",
+      "year": 2006,
+    }""")
+    val y = parse("""
+    {
+      "year": 2006,
+    }""")
+    val dfn = x dfn y
+    val jsf = JsRaw("x[\"lang\"] = void 0").cmd
+
+    dfn(JsVar("x")).toJsCmd.trim mustEqual(jsf.toJsCmd.trim)
+  }
 }

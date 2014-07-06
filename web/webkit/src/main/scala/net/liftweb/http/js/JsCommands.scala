@@ -1004,6 +1004,7 @@ object JsonDeltaFuncs { obj =>
 
   private def dfnFields(xs:List[JField], ys:List[JField]):JsVar => JsCmd = { ref =>
     def toMap(fs:List[JField]) = (fs map { case JField(name, value) => name -> value }).toMap
+    def toVar(k:String) = JsVar(ref.varName+"[\""+k+"\"]")
 
     val xm = toMap(xs)
     val ym = toMap(ys)
@@ -1012,10 +1013,16 @@ object JsonDeltaFuncs { obj =>
       (k, yv) <- ym
     } yield {
       val xv = xm.get(k).getOrElse(JNull)
-      dfn(xv, yv)(JsVar(ref.varName+"[\""+k+"\"]"))
+      dfn(xv, yv)(toVar(k))
     }
 
-    updates.reduceLeftOption(_ & _).getOrElse(JsCmds.Noop)
+    val voids = for {
+      k <- xm.keySet if !ym.contains(k)
+    } yield {
+      SetExp(toVar(k), JsRaw("void 0"))
+    }
+
+    (updates ++ voids).reduceLeftOption(_ & _).getOrElse(JsCmds.Noop)
   }
 
   implicit class ToJsonDeltaFunc(j:JValue) {
