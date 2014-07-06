@@ -978,17 +978,19 @@ object JsonDeltaFuncs { obj =>
 
   private def dfnArrays(xs:List[JValue], ys:List[JValue]): JsVar => JsCmd = { ref =>
     val len = Math.max(xs.length, ys.length)
-
     val xsp = xs.padTo(len, JNull)
-    val ysp = ys.padTo(len, JNull)
 
     val deltas = for {
-      ((x, y), i) <- xsp.zip(ysp).zipWithIndex if x != y
+      ((x, y), i) <- xsp.zip(ys).zipWithIndex if x != y
     } yield {
       SetExp(JsRaw(ref.varName+"["+i+"]"), y):JsCmd
     }
 
-    deltas.reduceLeftOption(_ & _).getOrElse(JsCmds.Noop)
+    val pops = if(xs.length > ys.length)
+      Some(JsFor(JsRaw("i=0"),JsLt(JsVar("i"),JInt(xs.length - ys.length)),JsRaw("i++"),Call(ref.varName+".pop")))
+    else None
+
+    (deltas ++ pops).reduceLeftOption(_ & _).getOrElse(JsCmds.Noop)
   }
 
   implicit class ToJsonDeltaFunc(j:JValue) {

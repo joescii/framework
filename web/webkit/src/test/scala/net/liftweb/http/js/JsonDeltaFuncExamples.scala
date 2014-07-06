@@ -6,6 +6,7 @@ import json._
 import JE._
 import JsonDeltaFuncs._
 import org.specs2.mutable.Specification
+import net.liftweb.http.js.JsCmds.JsFor
 
 object JsonDeltaFuncExamples extends Specification{
   "Same values" in {
@@ -54,7 +55,6 @@ object JsonDeltaFuncExamples extends Specification{
   "Prepend 2 values to array" in {
     val dfn = JArray(JBool(false) :: JInt(42) :: Nil) dfn
       JArray(JString("yo") :: JInt(10) :: JBool(false) :: JInt(42) :: Nil )
-    println(dfn)
     val jsf = (
       JsRaw("x[0] = \"yo\"").cmd &
       JsRaw("x[1] = 10").cmd &
@@ -64,11 +64,14 @@ object JsonDeltaFuncExamples extends Specification{
     dfn(JsVar("x")).toJsCmd mustEqual(jsf.toJsCmd)
   }
 
-//  "Remove first 2 values from array" in {
-//    val dfn =   JArray(JBool(false) :: JInt(42) :: JString("yo") :: JInt(10) :: Nil ) dfn
-//      JArray(JString("yo") :: JInt(10) :: Nil)
-//    println(dfn)
-//    val jsf = (JsRaw("x.push(false)").cmd & JsRaw("x.push(42)").cmd)
-//    dfn(JsVar("x")).toJsCmd mustEqual(jsf.toJsCmd)
-//  }
+  "Remove first 2 values from array" in {
+    val dfn =   JArray(JBool(false) :: JInt(42) :: JString("yo") :: JInt(10) :: Nil ) dfn
+      JArray(JString("yo") :: JInt(10) :: Nil)
+    val jsf = (
+      JsRaw("x[0] = \"yo\"").cmd &
+      JsRaw("x[1] = 10").cmd &
+      JsFor(JsRaw("i=0"),JsLt(JsVar("i"),JInt(2)),JsRaw("i++"),Call("x.pop"))
+    )
+    dfn(JsVar("x")).toJsCmd mustEqual(jsf.toJsCmd)
+  }
 }
