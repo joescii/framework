@@ -79,16 +79,35 @@ object JsonDeltaFuncExamples extends Specification{
     val x = parse("""
     {
       "lang": "scala",
-      "year": 2006,
+      "year": 2006
     }""")
     val y = parse("""
     {
       "lang": "haskell",
-      "year": 2006,
+      "year": 2006
     }""")
     val dfn = x dfn y
     val jsf = JsRaw("x[\"lang\"] = \"haskell\"").cmd
 
     dfn(JsVar("x")).toJsCmd.trim mustEqual(jsf.toJsCmd.trim)
   }
+
+  "Add a field to an obj" in {
+    val x = parse("""
+    {
+      "lang": "scala",
+      "year": 2006
+    }""")
+    val y = parse("""
+    {
+      "lang": "scala",
+      "year": 2006,
+      "versions": ["2.9.2","2.10","2.11"]
+    }""")
+    val dfn = x dfn y
+    val jsf = JsRaw("x[\"versions\"] = [\"2.9.2\",\"2.10\",\"2.11\"]").cmd
+
+    dfn(JsVar("x")).toJsCmd.trim mustEqual(jsf.toJsCmd.trim)
+  }
+
 }

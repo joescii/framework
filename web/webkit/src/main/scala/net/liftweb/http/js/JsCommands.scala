@@ -1008,14 +1008,14 @@ object JsonDeltaFuncs { obj =>
     val xm = toMap(xs)
     val ym = toMap(ys)
 
-    val additions = for {
+    val updates = for {
       (k, yv) <- ym
-      xv <- xm.get(k)
     } yield {
+      val xv = xm.get(k).getOrElse(JNull)
       dfn(xv, yv)(JsVar(ref.varName+"[\""+k+"\"]"))
     }
 
-    additions.reduceLeftOption(_ & _).getOrElse(JsCmds.Noop)
+    updates.reduceLeftOption(_ & _).getOrElse(JsCmds.Noop)
   }
 
   implicit class ToJsonDeltaFunc(j:JValue) {
