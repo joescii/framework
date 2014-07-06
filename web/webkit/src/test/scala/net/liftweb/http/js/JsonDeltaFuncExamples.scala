@@ -125,4 +125,24 @@ object JsonDeltaFuncExamples extends Specification{
 
     dfn(JsVar("x")).toJsCmd.trim mustEqual(jsf.toJsCmd.trim)
   }
+
+  "Add and object field to an obj" in {
+    val x = parse("""
+    {
+      "lang": "scala",
+      "year": 2006,
+    }""")
+    val y = parse("""
+    {
+      "lang": "scala",
+      "year": 2006,
+      "creator": {
+        "name": "Martin Odersky"
+      }
+    }""")
+    val dfn = x dfn y
+    val jsf = JsRaw("x[\"creator\"] = {\"name\":\"Martin Odersky\"}").cmd
+
+    dfn(JsVar("x")).toJsCmd.trim mustEqual(jsf.toJsCmd.trim)
+  }
 }
