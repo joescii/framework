@@ -36,12 +36,31 @@ object VDom {
     val aChildren = a.nonEmptyChildren.filter(isntWhitespace).toList
     val bChildren = b.nonEmptyChildren.filter(isntWhitespace).toList
 
-    val additions = bChildren.zipWithIndex.drop(aChildren.length)
-      .map { case (n, i) => VNodeInsert(i, VNode.fromXml(n)) }
-//    val deletions = aChildren.diff(bChildren)
-//      .map(c => VNodeDelete(aChildren.indexOf(c)))
+   // val additions = bChildren.zipWithIndex.drop(aChildren.length)
+   //   .map { case (n, i) => VNodeInsert(i, VNode.fromXml(n)) }
+    val before = aChildren//.zipWithIndex // if before < after, Insert
+    val after = bChildren//.zipWithIndex // if before > after, Delete
+                                      // if before == after, same or reorder
+    val additions = if (before.size < after.size) {
+      after.diff(before).map {
+        case c => VNodeInsert(after.indexOf(c), VNode.fromXml(c))
+      }
+    }
+    else List()
 
-    val transforms = additions //++ deletions
+    val deletions = if (before.size > after.size) {
+      before.diff(after).map {
+        case c => VNodeDelete(before.indexOf(c))
+      }
+    }
+    else List()
+
+    val deletions2 = aChildren.diff(bChildren)
+      .map(c => VNodeDelete(aChildren.indexOf(c)))
+    println("old deletions: " + deletions2)
+    println("new deletions: " + deletions)
+
+    val transforms = additions ++ deletions
 
     val children = aChildren.zip(bChildren)
       .collect {

@@ -98,7 +98,7 @@ object VDomSpec extends Specification {
         <div>
           <hr/>
           <ul>
-            <li>Message 2</li>
+            <li>Message 1</li>
           </ul>
         </div>
 
@@ -107,11 +107,11 @@ object VDomSpec extends Specification {
           node(),
           node(
             node()
-          ).withTransforms(VNodeDelete(0))
+          ).withTransforms(VNodeDelete(1))
         )
 
       diff(before, after) must_== expected
-    }.pendingUntilFixed("Not doing removes yet")
+    }//.pendingUntilFixed("Not doing removes yet")
 
     "find reordered elements" in {
       val before =
