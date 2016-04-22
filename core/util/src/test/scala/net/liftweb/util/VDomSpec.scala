@@ -146,7 +146,7 @@ object VDomSpec extends Specification {
         )
 
       diff(before, after) must_== expected
-    }.pendingUntilFixed
+    }.pendingUntilFixed("Not doing reordering yet")
 
   }
 }

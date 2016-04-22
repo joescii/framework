@@ -33,32 +33,22 @@ object VDom {
   }
 
   def diff(a:Node, b:Node):VNodeTransformTree = {
-    val aChildren = a.nonEmptyChildren.filter(isntWhitespace).toList
-    val bChildren = b.nonEmptyChildren.filter(isntWhitespace).toList
+    val aChildren = a.nonEmptyChildren.filter(isntWhitespace).toList // before
+    val bChildren = b.nonEmptyChildren.filter(isntWhitespace).toList // after
 
-   // val additions = bChildren.zipWithIndex.drop(aChildren.length)
-   //   .map { case (n, i) => VNodeInsert(i, VNode.fromXml(n)) }
-    val before = aChildren//.zipWithIndex // if before < after, Insert
-    val after = bChildren//.zipWithIndex // if before > after, Delete
-                                      // if before == after, same or reorder
-    val additions = if (before.size < after.size) {
-      after.diff(before).map {
-        case c => VNodeInsert(after.indexOf(c), VNode.fromXml(c))
+    val additions = if (aChildren.size < bChildren.size) {
+      bChildren.diff(aChildren).map {
+        case c => VNodeInsert(bChildren.indexOf(c), VNode.fromXml(c))
       }
     }
-    else List()
+    else Nil
 
-    val deletions = if (before.size > after.size) {
-      before.diff(after).map {
-        case c => VNodeDelete(before.indexOf(c))
+    val deletions = if (aChildren.size > bChildren.size) {
+      aChildren.diff(bChildren).map {
+        case c => VNodeDelete(aChildren.indexOf(c))
       }
     }
-    else List()
-
-    val deletions2 = aChildren.diff(bChildren)
-      .map(c => VNodeDelete(aChildren.indexOf(c)))
-    println("old deletions: " + deletions2)
-    println("new deletions: " + deletions)
+    else Nil
 
     val transforms = additions ++ deletions
 

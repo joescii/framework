@@ -47,6 +47,7 @@ object UpdateDOMSpec extends Specification with XmlMatchers {
     }
 
     val diff = VDom.diff(before, after)
+
     val js = JE.Call("lift.updateBody", Extraction.decompose(diff)).toJsCmd
 
     val file = File.createTempFile("test", "html")
@@ -82,7 +83,9 @@ object UpdateDOMSpec extends Specification with XmlMatchers {
 
       exec(js)
 
-      toXml(page.getBody) must beEqualToIgnoringSpace(after)
+      Utility.trim(toXml(page.getBody)) must beEqualTo(Utility.trim(after))
+      // switched from beEqualToIgnoringSpace because it doesn't check inside the elements
+      // resulting in false positives
     } finally {
       file.delete()
     }
@@ -107,8 +110,8 @@ object UpdateDOMSpec extends Specification with XmlMatchers {
             <hr/>
             <ul>
               <li>Message 1</li>
-              <li>Message 2</li>
               <li>Message 3</li>
+              <li>Message 2</li>
             </ul>
           </div>
         </body>
@@ -133,10 +136,10 @@ object UpdateDOMSpec extends Specification with XmlMatchers {
           <div>
             <hr/>
             <ul>
-              <li>Message 1</li>
-              <li>Message 2</li>
               <li>Message 3</li>
               <li>Message 4</li>
+              <li>Message 1</li>
+              <li>Message 2</li>
             </ul>
           </div>
         </body>
@@ -167,7 +170,37 @@ object UpdateDOMSpec extends Specification with XmlMatchers {
         </body>
 
       updateAndCompare(before, after)
-    }.pendingUntilFixed("Not doing removes yet")
+    }
+
+    "find reordered elements" in {
+      val before =
+        <body data-lift-content-id="main">
+          <div>
+            <hr/>
+            <ul>
+              <li>Message 1</li>
+              <li>Message 2</li>
+              <li>Message 3</li>
+              <li>Message 4</li>
+            </ul>
+          </div>
+        </body>
+
+      val after =
+        <body data-lift-content-id="main">
+          <div>
+            <hr/>
+            <ul>
+              <li>Message 3</li>
+              <li>Message 4</li>
+              <li>Message 1</li>
+              <li>Message 2</li>
+            </ul>
+          </div>
+        </body>
+
+      updateAndCompare(before, after)
+    }.pendingUntilFixed("Not doing reordering yet")
   }
 
 }
