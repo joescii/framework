@@ -12,7 +12,7 @@ object VDom {
   trait VNodeTransform
   case class VNodeInsert(position:Int, node:VNode) extends VNodeTransform
   case class VNodeDelete(position:Int) extends VNodeTransform
-  case class VNodeReorder(permutation:Map[Int, Int]) extends VNodeTransform
+  case class VNodeReorder(before:Int, after:Int) extends VNodeTransform
 
   case class VNodeTransformTree(transforms:List[VNodeTransform], children:List[VNodeTransformTree])
 
@@ -34,15 +34,77 @@ object VDom {
   }
 
   def diff(a:Node, b:Node):VNodeTransformTree = {
-    val aChildren = a.nonEmptyChildren.filter(isntWhitespace).toList
-    val bChildren = b.nonEmptyChildren.filter(isntWhitespace).toList
 
-    val additions = bChildren.zipWithIndex.drop(aChildren.length)
-      .map { case (n, i) => VNodeInsert(i, VNode.fromXml(n)) }
-//    val deletions = aChildren.diff(bChildren)
-//      .map(c => VNodeDelete(aChildren.indexOf(c)))
+    val aChildren = a.nonEmptyChildren.filter(isntWhitespace).toList // before
+    val bChildren = b.nonEmptyChildren.filter(isntWhitespace).toList // after
 
-    val transforms = additions //++ deletions
+    val additions = if (aChildren.size < bChildren.size) {
+      bChildren.diff(aChildren).map {
+        case c => VNodeInsert(bChildren.indexOf(c), VNode.fromXml(c))
+      }
+    }
+    else Nil
+
+    val deletions = if (aChildren.size > bChildren.size) {
+      aChildren.diff(bChildren).map {
+        case c => /*println(c + " Deletions: index " + aChildren.indexOf(c)); */VNodeDelete(aChildren.indexOf(c))
+      }
+    }
+    else Nil
+
+    val reorderings = if (aChildren.size == bChildren.size) {
+      aChildren.zip(bChildren).collect {
+        case (ca, cb) if aChildren.indexOf(ca) != bChildren.indexOf(ca) &&
+                        (aChildren.indexOf(ca) != -1 && bChildren.indexOf(ca) != -1)
+                        => VNodeReorder(aChildren.indexOf(ca), bChildren.indexOf(ca))
+        case _ => VNodeReorder(0, 0)
+      }
+    }
+    else Nil
+
+    val testList = if(aChildren.size == bChildren.size) {
+      aChildren.zip(bChildren).collect {
+        case (ca, cb) => bChildren.indexOf(ca)
+        case _ => -1
+      }
+    }
+    else Nil
+
+    val reorderTest = sort(testList.filterNot(_ == -1).toArray).filterNot(_ == -1).map(a => VNodeReorder(a, a-1))
+
+    println("SORT: " + sort(testList.filterNot(_ == -1).toArray))
+    println("FINGERS CROSSED: " + reorderTest)
+
+    /*val testList = if (aChildren.size == bChildren.size) {
+      aChildren.zip(bChildren).collect {
+        case (ca, cb) if aChildren.indexOf(ca) != -1 && bChildren.indexOf(ca) != -1 => VNodeReorder(aChildren.indexOf(cb), 0)
+        case _ => VNodeReorder(-1,-1)
+      }
+    }
+    else Nil
+
+    val reorderingsTest = testList.reverse.filterNot(_ == VNodeReorder(-1,-1))
+    val reorderTest2 = reorderingsTest.map {
+      case VNodeReorder(a, 0) => VNodeReorder(a+(reorderingsTest.length-a), 0)
+    }*/
+
+    //println("aChildren: " + aChildren)
+    //println("bChildren: " + bChildren)
+    //println("zip: " + aChildren.zip(bChildren))
+    //println("DIFF: " + aChildren.diff(bChildren))
+    println("REORDERINGS: " + reorderings)
+    //print("FIRST: " + reorderingsTest)
+    //print("SECOND: " + reorderTest2)
+    //println("Reorderings contains: " + reorderings.contains(VNodeReorder(0,0)))
+    //println("******************** SORT RESULT: " + sort(List(4,3,2,1)))
+
+    // Possibily List((0,0)).sort get index of value after sort??
+
+
+    val transforms = //if (reorderings.contains(VNodeReorder(0,0))) {
+      additions ++ deletions ++ reorderTest //reorderings.filterNot(_ == VNodeReorder(0,0))
+    //}
+    //else additions ++ deletions ++ reorderings
 
     val children = aChildren.zip(bChildren)
       .collect {
@@ -51,6 +113,42 @@ object VDom {
       }
 
     VNodeTransformTree(transforms, children)
+  }
+
+//  def sort(input: List[Int]):List[Int] = {
+//    if (input != Nil && input.tail != Nil) {
+//      if (input.head > input.tail.head) {
+//        println("INSIDE SORT: " + input.head + " " + input.tail.head)
+//        sort(List(input.tail.head, input.head):::input.tail.tail)
+//      }
+//      else {
+//        val sortResult = sort(input.tail)
+//        println("INSIDE SORT 2: " + sortResult)
+//        if (input.head > sortResult.head) {
+//          println("INSIDE SORT 3: " + sortResult.head + " " + input.head)
+//          sort(List(sortResult.head, input.head) ::: sortResult.tail)
+//        }
+//        else
+//          List(input.head) ::: sortResult
+//      }
+//    }
+//    else input
+//  }
+
+  def sort(input: Array[Int]): List[Int] = {
+    var changes = List(-1)
+    val limit = input.length - 1
+    for (a <- 1 to limit) {
+      for (b <- limit to a by -1) {
+        if (input(b) < input(b-1)) { // need to get b value anytime in this loop!
+          changes = changes:::List(b)
+          val x = input(b)
+          input(b) = input(b - 1)
+          input(b - 1) = x
+        }
+      }
+    }
+    changes
   }
 
   def compare(a:Node, b:Node):Float =

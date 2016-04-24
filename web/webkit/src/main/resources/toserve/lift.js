@@ -402,6 +402,8 @@
         var tf = tree.transforms[i];
         switch (tf.type) {
           case "insert": insertNode(node, tf.position, tf.node); break;
+          case "delete": deleteNode(node, tf.position); break;
+          case "reorder": reorderNode(node, tf.before, tf.after); break;
         }
       }
       var j=0;
@@ -421,8 +423,26 @@
     }
 
     function insertNode(parent, position, vnode) {
-      // TODO: insertBefore() if not at the end
-      parent.appendChild(createElement(vnode));
+      if(position < parent.children.length) {
+        parent.insertBefore(createElement(vnode), parent.children[position]);
+      }
+      else {
+        parent.appendChild(createElement(vnode));
+      }
+    }
+
+    function deleteNode(parent, position) {
+      parent.removeChild(parent.children[position]);
+    }
+
+    function reorderNode(parent, before, after) {
+      // IT WORKS! (gets before and after position)
+      // TODO: actually reorder the nodes
+      console.log("*** IN REORDER ***");
+      console.log("Parent: " + parent.children.length);
+      console.log("Before: " + before);
+      console.log("After: " + after);
+      parent.insertBefore(parent.children[before], parent.children[after]);
     }
 
     ////////////////////////////////////////////////

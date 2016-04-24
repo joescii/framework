@@ -21,7 +21,7 @@ object UpdateDOMSpec extends Specification with XmlMatchers {
 
   "UpdateDOM Spec".title
 
-  def rtAndCompare(before:Node, after:Node) = roundTrip(before, after) must beEqualToIgnoringSpace(after)
+  def rtAndCompare(before:Node, after:Node) = roundTrip(before, after) must beEqualTo(Utility.trim(after))
 
   def roundTrip(before:Node, after:Node):Node = {
     val lift_js = this.getClass.getClassLoader.getResource("toserve/lift.js")
@@ -49,6 +49,10 @@ object UpdateDOMSpec extends Specification with XmlMatchers {
     }
 
     val diff = VDom.diff(before, after)
+    println("DIFF: " + diff)
+
+    println("EXTRACTION: \n" + Extraction.decompose(diff))
+
     val js = JE.Call("lift.updateBody", Extraction.decompose(diff)).toJsCmd
 
     val file = File.createTempFile("test", "html")
@@ -84,7 +88,7 @@ object UpdateDOMSpec extends Specification with XmlMatchers {
 
       exec(js)
 
-      toXml(page.getBody)
+      Utility.trim(toXml(page.getBody))
     } finally {
       file.delete()
     }
@@ -109,8 +113,8 @@ object UpdateDOMSpec extends Specification with XmlMatchers {
             <hr/>
             <ul>
               <li>Message 1</li>
-              <li>Message 2</li>
               <li>Message 3</li>
+              <li>Message 2</li>
             </ul>
           </div>
         </body>
@@ -135,10 +139,10 @@ object UpdateDOMSpec extends Specification with XmlMatchers {
           <div>
             <hr/>
             <ul>
-              <li>Message 1</li>
-              <li>Message 2</li>
               <li>Message 3</li>
               <li>Message 4</li>
+              <li>Message 1</li>
+              <li>Message 2</li>
             </ul>
           </div>
         </body>
@@ -169,7 +173,69 @@ object UpdateDOMSpec extends Specification with XmlMatchers {
         </body>
 
       rtAndCompare(before, after)
-    }.pendingUntilFixed("Not doing removes yet")
+    }
+
+    "find reordered elements" in {
+      val before =
+        <body data-lift-content-id="main">
+          <div>
+            <hr/>
+            <ul>
+              <li>Message 1</li>
+              <li>Message 2</li>
+              <li>Message 3</li>
+              <li>Message 4</li>
+            </ul>
+          </div>
+        </body>
+
+      val after =
+        <body data-lift-content-id="main">
+          <div>
+            <hr/>
+            <ul>
+              <li>Message 4</li>
+              <li>Message 1</li>
+              <li>Message 2</li>
+              <li>Message 3</li>
+            </ul>
+          </div>
+        </body>
+
+      rtAndCompare(before, after)
+    }
+
+    "find more reordered elements" in {
+      val before =
+        <body data-lift-content-id="main">
+          <div>
+            <hr/>
+            <ul>
+              <li>Message 1</li>
+              <li>Message 2</li>
+              <li>Message 3</li>
+              <li>Message 4</li>
+              <li>Message 5</li>
+            </ul>
+          </div>
+        </body>
+
+      val after =
+        <body data-lift-content-id="main">
+          <div>
+            <hr/>
+            <ul>
+              <li>Message 2</li>
+              <li>Message 5</li>
+              <li>Message 1</li>
+              <li>Message 3</li>
+              <li>Message 4</li>
+            </ul>
+          </div>
+        </body>
+
+      rtAndCompare(before, after)
+    }
   }
 
 }
