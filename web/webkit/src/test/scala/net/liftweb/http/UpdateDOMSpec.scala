@@ -47,6 +47,9 @@ object UpdateDOMSpec extends Specification with XmlMatchers {
     }
 
     val diff = VDom.diff(before, after)
+    println("DIFF: " + diff)
+
+    println("EXTRACTION: \n" + Extraction.decompose(diff))
 
     val js = JE.Call("lift.updateBody", Extraction.decompose(diff)).toJsCmd
 
@@ -191,16 +194,48 @@ object UpdateDOMSpec extends Specification with XmlMatchers {
           <div>
             <hr/>
             <ul>
-              <li>Message 3</li>
               <li>Message 4</li>
               <li>Message 1</li>
               <li>Message 2</li>
+              <li>Message 3</li>
             </ul>
           </div>
         </body>
 
       updateAndCompare(before, after)
-    }.pendingUntilFixed("Not doing reordering yet")
+    }//.pendingUntilFixed("Not doing reordering yet")
+
+    "find more reordered elements" in {
+      val before =
+        <body data-lift-content-id="main">
+          <div>
+            <hr/>
+            <ul>
+              <li>Message 1</li>
+              <li>Message 2</li>
+              <li>Message 3</li>
+              <li>Message 4</li>
+              <li>Message 5</li>
+            </ul>
+          </div>
+        </body>
+
+      val after =
+        <body data-lift-content-id="main">
+          <div>
+            <hr/>
+            <ul>
+              <li>Message 2</li>
+              <li>Message 5</li>
+              <li>Message 1</li>
+              <li>Message 3</li>
+              <li>Message 4</li>
+            </ul>
+          </div>
+        </body>
+
+      updateAndCompare(before, after)
+    }//.pendingUntilFixed("Not doing reordering yet")
   }
 
 }
