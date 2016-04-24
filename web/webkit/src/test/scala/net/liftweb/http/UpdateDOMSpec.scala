@@ -95,7 +95,7 @@ object UpdateDOMSpec extends Specification with XmlMatchers {
   }
 
   "UpdateDOM" should {
-    "append an element" in {
+    "insert an element" in {
       val before =
         <body data-lift-content-id="main">
           <div>
@@ -122,7 +122,7 @@ object UpdateDOMSpec extends Specification with XmlMatchers {
       rtAndCompare(before, after)
     }
 
-    "append two elements" in {
+    "prepend two elements" in {
       val before =
         <body data-lift-content-id="main">
           <div>
