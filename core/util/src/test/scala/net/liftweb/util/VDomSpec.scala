@@ -186,7 +186,7 @@ object VDomSpec extends Specification with XmlMatchers {
         )
 
       diff(before, after) must_== expected
-    }//.pendingUntilFixed("Not doing removes yet")
+    }
 
     "find reordered elements" in {
       val before =
@@ -217,7 +217,7 @@ object VDomSpec extends Specification with XmlMatchers {
         )
 
       diff(before, after) must_== expected
-    }//.pendingUntilFixed("Not doing reordering yet")
+    }.pendingUntilFixed
 
   }
 }
